@@ -1,0 +1,30 @@
+name: "Branch Name"
+description: "Get the branch name and sanitise it of any special characters"
+outputs:
+  branch_name:
+    description: "Determined branch name"
+    value: ${{ steps.determine_branch.outputs.branch_name }}
+  sanitised_branch_name:
+    description: "Sanitised branch name"
+    value: ${{ jobs.sanitise_branch_name.outputs.sanitized_branch_name }}
+runs:
+  using: "composite"
+  steps:
+    - name: "Determine Branch"
+      id: determine_branch
+      shell: bash
+      run: |
+        BRANCH=${{ github.head_ref }}
+        if [ "$BRANCH" == "" ]; then
+            BRANCH=$(echo ${{ github.ref }} | sed 's/refs\/heads\///');
+        fi;
+        echo "Determined branch: $BRANCH"
+        echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT;
+
+    - name: "Sanitize Branch name"
+      id: sanitize_branch
+      shell: bash
+      run: |
+        SANITIZED_BRANCH_NAME=$(echo -n ${{ steps.determine_branch.outputs.branch_name }} | sed -e 's/[^a-zA-Z0-9-]/-/g')
+        echo "Sanitized branch name: $SANITIZED_BRANCH_NAME"
+        echo "sanitized_branch_name=$SANITIZED_BRANCH_NAME" >> $GITHUB_OUTPUT;
