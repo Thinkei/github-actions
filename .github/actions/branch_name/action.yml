@@ -6,7 +6,7 @@ outputs:
     value: ${{ steps.determine_branch.outputs.branch_name }}
   sanitised_branch_name:
     description: "Sanitised branch name"
-    value: ${{ jobs.sanitise_branch_name.outputs.sanitized_branch_name }}
+    value: ${{ steps.sanitise_branch_name.outputs.sanitized_branch_name }}
 runs:
   using: "composite"
   steps:
