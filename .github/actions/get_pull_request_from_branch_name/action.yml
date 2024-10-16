@@ -1,0 +1,34 @@
+name: "Get pull request from branch name"
+description: "Get the related pull request given the head branch name. This is useful when you want to get the base branch of the pull request when the trigger is not a pull request event, such as a push event or workflow_dispatch event."
+inputs:
+  branch_name:
+    description: "Branch name to get the PR base branch from"
+    required: true
+    default: ${{ github.head_ref }}
+  token:
+    description: "GitHub token"
+    required: true
+    default: ${{ github.token }}
+outputs:
+  pr_base_branch:
+    description: "Determined base branch of the PR"
+    value: ${{ steps.get_pull_request_base_branch.outputs.pr_base_branch }}
+  pr_number:
+    description: "Determined PR number"
+    value: ${{ steps.get_pull_request_base_branch.outputs.pr_number }}
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/github-script@v7
+      id: get_pull_request_base_branch
+      with:
+        result-encoding: string
+        retries: 3
+        script: |
+          const script = require(process.env.GITHUB_ACTION_PATH + '/script.js');
+          await script({
+            github,
+            core,
+            context,
+            branch_name: "${{ inputs.branch_name }}",
+          });
